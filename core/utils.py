@@ -114,7 +114,13 @@ def filter_boxes(box_xywh, scores, score_threshold=0.4, input_shape = tf.constan
     return (boxes, pred_conf)
 
 # Function process detect plate from the frame
-def frame_analyze(frame, interpreter, input_details, output_details, recogChar, iou, score, input_size):
+def frame_analyze(frame, tf, recogChar, iou, score, input_size):
+
+    # Load TFLite weight
+    interpreter = tf.lite.Interpreter(model_path='./TFLites/DetectPlate.tflite')
+    interpreter.allocate_tensors()
+    input_details = interpreter.get_input_details()
+    output_details = interpreter.get_output_details()
 
     # Convert Color, resize frame,...
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
