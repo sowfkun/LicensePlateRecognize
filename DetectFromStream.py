@@ -58,17 +58,17 @@ def main(_argv):
             thread2 = Thread(target=detect_threading, args=(os, 1, tf, recogChar, iou, score, input_size))
             thread3 = Thread(target=detect_threading, args=(os, 2, tf, recogChar, iou, score, input_size))
             thread4 = Thread(target=detect_threading, args=(os, 3, tf, recogChar, iou, score, input_size))
-
+            
             thread1.start()
             thread2.start()
             thread3.start()
             thread4.start()
-
+            
             thread1.join()
             thread2.join()
             thread3.join()
             thread4.join()
-	           
+            	           
 if __name__ == '__main__':
     try:
         app.run(main)
