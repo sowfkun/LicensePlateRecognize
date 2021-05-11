@@ -298,21 +298,6 @@ def plate_no_validation(list_plate_no):
 def post_to_server(image, list_plate_no):
     print(list_plate_no)
 
-# Helper Function 
-def load_config(FLAGS):
-    
-    STRIDES = np.array(cfg.YOLO.STRIDES) 
-    ANCHORS = get_anchors(cfg.YOLO.ANCHORS)
-    XYSCALE = cfg.YOLO.XYSCALE
-    NUM_CLASS = 1
-
-    return STRIDES, ANCHORS, NUM_CLASS, XYSCALE
-
-def get_anchors(anchors_path):
-    anchors = np.array(anchors_path)
-    return anchors.reshape(3, 3, 2)
-
-
 def get_digits_data(path):
     data = np.load(path, allow_pickle=True)
     total_nb_data = len(data)
