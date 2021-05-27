@@ -22,20 +22,19 @@ def detect_threading(os, img_index, tf, recogChar, iou, score, input_size):
     
     file = sorted(os.scandir('./input/'), key=lambda t: t.stat().st_mtime)[img_index]
     input_path = "./input/" + file.name
-    processing_path = "./processing/" + file.name
+    result_path = "./result/" + file.name
         
     img = cv2.imread(input_path)
-    cv2.imwrite(processing_path, img)
                 
     analyze_result = utils.frame_analyze(img, tf, recogChar, iou, score, input_size)
             
     if analyze_result != "no_plate":
         valid_plate_no = utils.plate_no_validation(analyze_result[1])        
-        utils.post_to_server(analyze_result[0], valid_plate_no)
+        utils.post_to_server(analyze_result[0], valid_plate_no, result_path)
     else: 
         print("no plate")
     
-    os.remove(input_path)
+    #os.remove(input_path)
 
 # main Function
 def main(_argv):
@@ -47,41 +46,23 @@ def main(_argv):
     score = 0.25
     recogChar = CNN_Model(trainable=False).model
     recogChar.load_weights('./Weights/weight.h5')
-       
-    while True:
-        if len(os.listdir("./input")) > 11:
-            thread1 = Thread(target=detect_threading, args=(os, 0, tf, recogChar, iou, score, input_size))
-            thread2 = Thread(target=detect_threading, args=(os, 1, tf, recogChar, iou, score, input_size))
-            thread3 = Thread(target=detect_threading, args=(os, 2, tf, recogChar, iou, score, input_size))
-            thread4 = Thread(target=detect_threading, args=(os, 3, tf, recogChar, iou, score, input_size))
-            thread5 = Thread(target=detect_threading, args=(os, 4, tf, recogChar, iou, score, input_size))
-            thread6 = Thread(target=detect_threading, args=(os, 5, tf, recogChar, iou, score, input_size))
-            thread7 = Thread(target=detect_threading, args=(os, 6, tf, recogChar, iou, score, input_size))
-            thread8 = Thread(target=detect_threading, args=(os, 7, tf, recogChar, iou, score, input_size))
-            thread9 = Thread(target=detect_threading, args=(os, 8, tf, recogChar, iou, score, input_size))
-            thread10 = Thread(target=detect_threading, args=(os, 9, tf, recogChar, iou, score, input_size))
 
-            thread1.start()
-            thread2.start()
-            thread3.start()
-            thread4.start()
-            thread5.start()
-            thread6.start()
-            thread7.start()
-            thread8.start()
-            thread9.start()
-            thread10.start()
+    detect_threading(os, 0, tf, recogChar, iou, score, input_size)
 
-            thread1.join()
-            thread2.join()
-            thread3.join()
-            thread4.join()
-            thread5.join()
-            thread6.join()
-            thread7.join()
-            thread8.join()
-            thread9.join()
-            thread10.join()
+    # while True:
+    #     if len(os.listdir("./input")) > 11:
+    #         thread1 = Thread(target=detect_threading, args=(os, 0, tf, recogChar, iou, score, input_size))
+    #         thread2 = Thread(target=detect_threading, args=(os, 1, tf, recogChar, iou, score, input_size))
+    #         thread3 = Thread(target=detect_threading, args=(os, 2, tf, recogChar, iou, score, input_size))
+           
+    #         thread1.start()
+    #         thread2.start()
+    #         thread3.start()
+
+    #         thread1.join()
+    #         thread2.join()
+    #         thread3.join()
+          
             
             	           
 if __name__ == '__main__':

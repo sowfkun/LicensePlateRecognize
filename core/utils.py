@@ -7,6 +7,7 @@ import tensorflow as tf
 import core.utils as utils
 import imutils
 import re
+import requests
 
 from PIL import Image
 from core.config import cfg
@@ -46,7 +47,8 @@ def draw_bbox(image, bboxes, show_label=True):
         crop_plate = image[int(coor[0]):int(coor[2]), int(coor[1]):int(coor[3])]
         crop_plate_rgb = cv2.cvtColor(np.array(crop_plate), cv2.COLOR_BGR2RGB)
         list_plates.append(crop_plate_rgb)
-      
+
+    image = cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)  
     return image, list_plates 
 
 # Convert images to square image
@@ -295,9 +297,15 @@ def plate_no_validation(list_plate_no):
     return valid_plate_no 
 
 # Post result to server
-def post_to_server(image, list_plate_no):
-    print(list_plate_no)
+def post_to_server(image, list_plate_no, result_path):
+    cv2.imwrite(result_path, image)
+    url  = 'http://localhost:3000/api/ProcessDataFromEdge' 
+    
+    file = {"image" : open(result_path, "rb")}
+    data = { "listplate": list_plate_no}
 
+    requests.post(url, files=file, data=data)
+    
 def get_digits_data(path):
     data = np.load(path, allow_pickle=True)
     total_nb_data = len(data)
