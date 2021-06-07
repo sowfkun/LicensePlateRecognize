@@ -28,7 +28,7 @@ def main(_argv):
     recogChar.load_weights('./Weights/weight.h5')
 
     while True:
-        if len(os.listdir("./input")) > 11:
+        if len(os.listdir("./input")) > 2:
             file = sorted(os.scandir('./input/'), key=lambda t: t.stat().st_mtime)[0]
             input_path = "./input/" + file.name
                 
