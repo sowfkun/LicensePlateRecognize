@@ -297,15 +297,24 @@ def plate_no_validation(list_plate_no):
     return valid_plate_no 
 
 # Post result to server
-def post_to_server(image, list_plate_no, result_path):
+def post_to_server(image, list_plate_no):
+    img_name = ""
+    for plate in list_plate_no: 
+        img_name = img_name + plate + "_"
+
+    result_path = "./result/" + img_name[:-1] + ".jpg"
     cv2.imwrite(result_path, image)
-    url  = 'http://localhost:3000/api/ProcessDataFromEdge' 
+    url  = 'https://vsscam.tk/api/ProcessDataFromEdge' 
     
     file = {"image" : open(result_path, "rb")}
     data = { "listplate": list_plate_no}
-
-    requests.post(url, files=file, data=data)
+    print(list_plate_no)
+    try:
+        requests.post(url, files=file, data=data)
+    except Exception as ex:
+        print(ex)
     
+
 def get_digits_data(path):
     data = np.load(path, allow_pickle=True)
     total_nb_data = len(data)

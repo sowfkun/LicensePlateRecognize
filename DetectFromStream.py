@@ -16,26 +16,6 @@ physical_devices = tf.config.experimental.list_physical_devices('GPU')
 if len(physical_devices) > 0:
     tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
-
-# Define thread
-def detect_threading(os, img_index, tf, recogChar, iou, score, input_size):
-    
-    file = sorted(os.scandir('./input/'), key=lambda t: t.stat().st_mtime)[img_index]
-    input_path = "./input/" + file.name
-    result_path = "./result/" + file.name
-        
-    img = cv2.imread(input_path)
-                
-    analyze_result = utils.frame_analyze(img, tf, recogChar, iou, score, input_size)
-            
-    if analyze_result != "no_plate":
-        valid_plate_no = utils.plate_no_validation(analyze_result[1])        
-        utils.post_to_server(analyze_result[0], valid_plate_no, result_path)
-    else: 
-        print("no plate")
-    
-    #os.remove(input_path)
-
 # main Function
 def main(_argv):
     # Define some variable
@@ -47,22 +27,22 @@ def main(_argv):
     recogChar = CNN_Model(trainable=False).model
     recogChar.load_weights('./Weights/weight.h5')
 
-    detect_threading(os, 0, tf, recogChar, iou, score, input_size)
+    while True:
+        if len(os.listdir("./input")) > 11:
+            file = sorted(os.scandir('./input/'), key=lambda t: t.stat().st_mtime)[0]
+            input_path = "./input/" + file.name
+                
+            img = cv2.imread(input_path)
+                        
+            analyze_result = utils.frame_analyze(img, tf, recogChar, iou, score, input_size)
+                    
+            if analyze_result != "no_plate":
+                valid_plate_no = utils.plate_no_validation(analyze_result[1])        
+                utils.post_to_server(analyze_result[0], valid_plate_no)
+            else: 
+                print("no plate")
 
-    # while True:
-    #     if len(os.listdir("./input")) > 11:
-    #         thread1 = Thread(target=detect_threading, args=(os, 0, tf, recogChar, iou, score, input_size))
-    #         thread2 = Thread(target=detect_threading, args=(os, 1, tf, recogChar, iou, score, input_size))
-    #         thread3 = Thread(target=detect_threading, args=(os, 2, tf, recogChar, iou, score, input_size))
-           
-    #         thread1.start()
-    #         thread2.start()
-    #         thread3.start()
-
-    #         thread1.join()
-    #         thread2.join()
-    #         thread3.join()
-          
+            os.remove(input_path)  
             
             	           
 if __name__ == '__main__':
