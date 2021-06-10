@@ -303,7 +303,7 @@ def post_to_server(image, list_plate_no):
 
     result_path = "./result/" + img_name[:-1] + ".jpg"
     cv2.imwrite(result_path, image)
-    url  = 'http://vsscam.tk/api/ProcessDataFromEdge' 
+    url  = 'https://vsscam.tk/api/ProcessDataFromEdge' 
     
     file = {"image" : open(result_path, "rb")}
     data = { "listplate": list_plate_no}

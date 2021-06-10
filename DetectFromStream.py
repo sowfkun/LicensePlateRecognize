@@ -39,8 +39,7 @@ def main(_argv):
                 print("no plate")
 
             os.remove(input_path)  
-            done_time  = time.time()   
-            print(done_time - prev_time) 
+            
             	           
 if __name__ == '__main__':
     try:

@@ -15,10 +15,10 @@ def main(_argv):
         if return_value:
             
             if count % 30 == 0:
-                frame = cv2.rotate(frame, cv2.ROTATE_180)
+                #frame = cv2.rotate(frame, cv2.ROTATE_180)
                 cv2.imwrite("./input/frame_" + str(frame_index) + ".jpg" , frame)
                 frame_index += 1
-                print(count)
+                print("Detecting")
             count +=1 
         else:
             break
