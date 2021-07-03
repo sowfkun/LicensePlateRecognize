@@ -21,20 +21,27 @@ def main(_argv):
     recogChar = CNN_Model(trainable=False).model
     recogChar.load_weights('./Weights/weight.h5')
 
+    # Load TFLite weight
+    interpreter = tf.lite.Interpreter(model_path='./TFLites/DetectPlate.tflite')
+    interpreter.allocate_tensors()
+    input_details = interpreter.get_input_details()
+    output_details = interpreter.get_output_details()
+
+    count = 0
     while True:
-        if len(os.listdir("./input")) >= 2:
+        if len(os.listdir("./input")) > 1:
             prev_time  = time.time()
 
             file = sorted(os.scandir('./input/'), key=lambda t: t.stat().st_mtime)[0]
             input_path = "./input/" + file.name
-                
-            img = cv2.imread(input_path)    
-                        
-            analyze_result = utils.frame_analyze(img, tf, recogChar, iou, score, input_size)
+            img = cv2.imread(input_path)               
+            
+            analyze_result = utils.frame_analyze(img, tf, recogChar, iou, score, input_size, input_details, output_details, interpreter)
                     
-            if analyze_result != "no_plate":
-                valid_plate_no = utils.plate_no_validation(analyze_result[1])        
+            if analyze_result != "no_plate" and len(analyze_result) != 0:
+                valid_plate_no = utils.plate_no_validation(analyze_result[1]) 
                 utils.post_to_server(analyze_result[0], valid_plate_no)
+                print(valid_plate_no)       
             else: 
                 print("no plate")
 

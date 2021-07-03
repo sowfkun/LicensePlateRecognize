@@ -20,7 +20,7 @@ def main(_argv):
         if return_value:
             cv2.imwrite("./input/frame_" + str(frame_index) + ".jpg" , frame)
             frame_index += 1
-            time.sleep(0.4) # 1s take three frame
+            time.sleep(1) # 1s take 2 frame
             is_connected = True
         else:
             is_connected = False 

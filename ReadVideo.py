@@ -18,7 +18,6 @@ def main(_argv):
                 #frame = cv2.rotate(frame, cv2.ROTATE_180)
                 cv2.imwrite("./input/frame_" + str(frame_index) + ".jpg" , frame)
                 frame_index += 1
-                print("Detecting")
             count +=1 
         else:
             break

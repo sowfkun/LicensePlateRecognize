@@ -116,14 +116,9 @@ def filter_boxes(box_xywh, scores, score_threshold=0.4, input_shape = tf.constan
     return (boxes, pred_conf)
 
 # Function process detect plate from the frame
-def frame_analyze(frame, tf, recogChar, iou, score, input_size):
+def frame_analyze(frame, tf, recogChar, iou, score, input_size, input_details, output_details, interpreter):
 
-    # Load TFLite weight
-    interpreter = tf.lite.Interpreter(model_path='./TFLites/DetectPlate.tflite')
-    interpreter.allocate_tensors()
-    input_details = interpreter.get_input_details()
-    output_details = interpreter.get_output_details()
-
+   
     # Convert Color, resize frame,...
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     image = Image.fromarray(frame)
@@ -157,6 +152,7 @@ def frame_analyze(frame, tf, recogChar, iou, score, input_size):
         image         = draw_box[0]
         list_plate    = draw_box[1]
         list_plate_no = plate_analyze(list_plate, recogChar)
+        #list_plate_no = plate_analyze(list_plate)
         
         return (image, list_plate_no)
     else:
@@ -181,10 +177,11 @@ def plate_analyze(list_plate, recogChar):
         thresh = cv2.medianBlur(thresh, 5)
         # Combine pixels have same value to blocks and label these blocks
         labels = measure.label(thresh, connectivity=2, background=0)
-        cv2.imwrite("output/plate.jpg", thresh)
+        cv2.imwrite("./plate/plate.jpg", thresh)
 
         # Filter unexpected label
         img_position_list = []
+        #index = 1
         for label in np.unique(labels):
             # if this is background label, ignore it
             if label == 0:
@@ -212,7 +209,8 @@ def plate_analyze(list_plate, recogChar):
                     img_resize  = cv2.resize(img, (28, 28), cv2.INTER_AREA)
                     img_reshape = img_resize.reshape((-1, 28, 28, 1))
                     img_position_list.append((img_reshape, (x, y, w, h)))
-                    
+                    #cv2.imwrite("./plate/contour" + str(index) + ".jpg", img_resize.reshape((28,28,1)))
+                    #index +=1
         # Recognize character in image
         char_position_list = []        
         for img_position in img_position_list:
@@ -243,7 +241,7 @@ def plate_analyze(list_plate, recogChar):
             # If length of line 2 = 0 mean just 1 line
             # If Position of line 1 < line 2 mean line 1 is upper 
             if len(line2) != 0:
-                if line1[0][1][1] > line2[0][1][0]:
+                if line1[0][1][1] > line2[0][1][1]:
                     line1_is_upper = False
 
             # Sort character by second element (x coordinate)
@@ -265,7 +263,8 @@ def plate_analyze(list_plate, recogChar):
                 for char, position in line1:
                     plate_no += char
             list_plate_no.append(re.sub(r'[\W_]+', '', plate_no))
-    
+            cv2.imwrite("plate/plate_1" + plate_no + ".jpg", thresh)
+            cv2.imwrite("plate/plate_" + plate_no + ".jpg", plate)
     return list_plate_no
         
 # Function Check Valid plate number
@@ -290,7 +289,15 @@ def plate_no_validation(list_plate_no):
             if plate_no[2] == "L" and plate_no[3] == "0":
                plate_no = plate_no[:3] + "D" + plate_no[3+1:]
             
-            valid_plate_no.append(plate_no)
+            count_letter = 0
+            for i in plate_no:
+                if i.isalpha():
+                    count_letter +=1
+            
+            if count_letter >=3 or count_letter == 0 or plate_no[1].isalpha():
+                continue
+            else:
+                valid_plate_no.append(plate_no)
         else: 
             continue
     return valid_plate_no 
@@ -307,7 +314,7 @@ def post_to_server(image, list_plate_no):
     
     file = {"image" : open(result_path, "rb")}
     data = { "listplate": list_plate_no}
-    print(list_plate_no)
+    
     try:
         requests.post(url, files=file, data=data)
     except Exception as ex:
@@ -343,4 +350,3 @@ def get_alphas_data(path):
     print('The number of train alphas data: ', len(data_train))
 
     return data_train
-

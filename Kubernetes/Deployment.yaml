@@ -6,12 +6,10 @@ metadata:
 spec:
   # số POD tạo ra
   replicas: 1
-
   # thiết lập các POD do deploy quản lý, là POD có nhãn  "app=aiapp"
   selector:
     matchLabels:
       app: aiapp
-
   # Định nghĩa mẫu POD, khi cần Deploy sử dụng mẫu này để tạo Pod
   template:
     metadata:
